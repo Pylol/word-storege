@@ -1,3 +1,9 @@
 {
-  "英文":"https://raw.githubusercontent.com/Pylol/word-storege/main/%E8%8B%B1%E8%AF%AD%E5%8D%95%E8%AF%8D"
+  "英文单词":"https://raw.githubusercontent.com/Pylol/word-storege/main/%E8%8B%B1%E8%AF%AD%E5%8D%95%E8%AF%8D",
+  "一年级生字":"https://raw.githubusercontent.com/Pylol/word-storege/main/%E4%B8%80%E5%B9%B4%E7%BA%A7%E7%94%9F%E5%AD%97",
+  "二年级生字":"https://raw.githubusercontent.com/Pylol/word-storege/main/%E4%BA%8C%E5%B9%B4%E7%BA%A7%E7%94%9F%E5%AD%97",
+  "三年级生字":"https://raw.githubusercontent.com/Pylol/word-storege/main/%E4%B8%89%E5%B9%B4%E7%BA%A7%E7%94%9F%E5%AD%97",
+  "四年级生字":"https://raw.githubusercontent.com/Pylol/word-storege/main/%E5%9B%9B%E5%B9%B4%E7%BA%A7%E7%94%9F%E5%AD%97",
+  "五年级生字":"https://raw.githubusercontent.com/Pylol/word-storege/main/%E4%BA%94%E5%B9%B4%E7%BA%A7%E7%94%9F%E5%AD%97",
+  "六年级生字":"https://raw.githubusercontent.com/Pylol/word-storege/main/%E5%85%AD%E5%B9%B4%E7%BA%A7%E7%94%9F%E5%AD%97"
 }
