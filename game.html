@@ -152,14 +152,13 @@
             var shownResults = [];
             // 按钮点击事件，随机展示文案
             function buttonClickEvent() {
-                var cachedData = localStorage.getItem('cachedFileData');
+                const selectedItem = select.options[select.selectedIndex].text;
+                var cachedData = localStorage.getItem(selectedItem);
                 if(!cachedData) {
                     console.log("fetch remote file content");
 
                     ( async() => {
-                        const fileContent = await fetchRemoteFile(select.value);
-                        console.log(fileContent);
-
+                        const fileContent = await fetchRemoteFile(select.value, selectedItem);
                         showContent(fileContent, shownResults, display);
 
                     })();
@@ -174,8 +173,6 @@
                 ( async() => {
                     const optionListStr = await fetchRemoteFile(remoteUrl);
                     const optionList = JSON.parse(optionListStr);
-
-                    console.log(optionListStr);
 
                     var selectEle = document.getElementById("options");
                     var linkList = document.getElementById("linkList");
