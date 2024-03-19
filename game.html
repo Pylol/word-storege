@@ -331,7 +331,7 @@
             //清除localstorege
             localStorage.clear();
 
-            var remoteUrl = "https://raw.githubusercontent.com/Pylol/word-storege/main/options";
+            var remoteUrl = "https://gitee.com/boyz/word-storege/raw/main/options";
             ( async() => {
                 const optionListStr = await fetchRemoteFile(remoteUrl);
                 const optionList = JSON.parse(optionListStr);
