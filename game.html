@@ -13,6 +13,24 @@
             margin: 0;
             background-color: #f2f2f2;
         }
+        #container {
+            display: flex;
+            flex-direction: column;
+            /*background-color: red;*/
+        }
+        .tab-container {
+            justify-content: center; /* 水平居中 */
+            align-items: center; /* 垂直居中 */
+            display: flex;
+
+        }
+        .content-container {
+            display: none;
+            padding: 20px;
+        }
+        .content-container.active {
+            display: block;
+        }
 
         .button {
             background-color: blue;
@@ -29,15 +47,19 @@
             background-color: #0057A6;
         }
 
+        .pagebtn {
+            background-color: #6A5ACD;
+            padding: 3px 10px;
+            font-size: 12px;
+            margin: 0px 5px;
+        }
+
         #display {
             margin-top: 20px;
-            font-size: 50px;
+            font-size: 32px;
             text-align: center;
         }
-        .container {
-            display: flex;
-            flex-direction: column;
-        }
+
 
         .item {
             flex: 1;
@@ -117,132 +139,305 @@
             color: #ff6347; /* 鼠标悬停时的颜色 */
         }
 
+
+
+        .tab {
+            display: inline-block;
+            padding: 10px 20px;
+            cursor: pointer;
+            background-color: #f0f0f0;
+            color: #333;
+            font-weight: bold;
+            border: none;
+            border-radius: 20px;
+            transition: background-color 0.3s;
+        }
+
+        .tab.active {
+            background-color: #007bff;
+            color: #fff;
+        }
+
+        .span-list {
+            padding: 0;
+            margin: 0;
+            text-align: center;
+        }
+
+        .span-list div{
+            margin-bottom: 10px; /* 控制元素之间的垂直间距 */
+            display: block; /* 将 span 元素以块级元素展示，实现垂直排列 */
+            padding: 5px 10px;
+            background-color: #f0f0f0;
+            border-radius: 5px;
+            font-size: 18px;
+            color: #333;
+        }
+
+        #pageNum {
+            margin: 0px 5px;
+        }
     </style>
 </head>
 <body>
     
     <div id="container">
-        <div class="item links-container" id="linkList">
+        <!-- 选项卡 -->
+        <div class="tab-container">
+            <div class="tab active" onclick="tabSwitchEvent(0)">问答模式</div>
+            <div class="tab" onclick="tabSwitchEvent(1)">学习模式</div>
         </div>
+        <div class="item links-container" id="linkList"></div>
         <div class="item">
-            <select id="options">
-            </select>
+            <select id="options"></select>
         </div>
-        <div class="item">
-            <button id="pickButton" class="button">点击我</button>
-        </div>
+        <div class="content-container active">
+            <div class="item">
+                <button id="pickButton" class="button">点击我</button>
+            </div>
 
-        <div id="display" class="item"></div>
+            <div id="display" class="item"></div>
+        </div>
+        <div class="content-container">
+            <div class="item">
+                <button id="prevButton" class="button prebtn pagebtn">上一页</button>
+                <span id="pageNum">1</span>
+                <button id="nextButton" class="button nextbtn pagebtn">下一页</button>
+            </div>
+
+            <div id="displayAll" class="span-list"></div>
+        </div>
     <div>
 
     <script>
         document.addEventListener("DOMContentLoaded", function() {
-            //清除localstorege
-            localStorage.clear();
-            getTypeOptions();
-
-            var button = document.getElementById("pickButton");
-            var display = document.getElementById("display");
-            var select = document.getElementById("options");
-
-            // 添加事件绑定
-            button.addEventListener("click", function() {buttonClickEvent();});
+            //初始化页面选项
+            initPageInfo();
 
             // 用于存储已经展示过的结果
             var shownResults = [];
-            // 按钮点击事件，随机展示文案
-            function buttonClickEvent() {
-                const selectedItem = select.options[select.selectedIndex].text;
-                var cachedData = localStorage.getItem(selectedItem);
-                if(!cachedData) {
-                    console.log("fetch remote file content");
 
-                    ( async() => {
-                        const fileContent = await fetchRemoteFile(select.value, selectedItem);
-                        showContent(fileContent, shownResults, display);
-
-                    })();
-                } else {
-                    showContent(cachedData, shownResults, display);    
-                }
-            }
-
-            // 获取选项列表
-            function getTypeOptions() {
-                var remoteUrl = "https://raw.githubusercontent.com/Pylol/word-storege/main/options";
-                ( async() => {
-                    const optionListStr = await fetchRemoteFile(remoteUrl);
-                    const optionList = JSON.parse(optionListStr);
-
-                    var selectEle = document.getElementById("options");
-                    var linkList = document.getElementById("linkList");
-
-                    for ( const key in optionList) {
-                        const option = document.createElement("option");
-                        option.value = optionList[key];
-                        option.textContent = key;
-                        selectEle.appendChild(option);
-
-                        const link = document.createElement("a")
-                        link.href = optionList[key];
-                        link.textContent = key;
-                        link.target = "_blank";
-                        linkList.appendChild(link);
-                    }
-                })();
-
-            }
-
-            // 随机展示文案
-            function showContent(fileContent, shownResults, display) {
-                const items = fileContent.split('\n');
-
-                // 检查是否所有结果都已经展示过，如果是，则重置 shownResults
-                if (shownResults.length === items.length) {
-                    shownResults = [];
-                }
-
-                // 从未展示过的结果中随机选择一个
-                var availableItems = items.filter(function(item) {
-                    return !shownResults.includes(item);
-                });
-                var randomIndex = Math.floor(Math.random() * availableItems.length);
-                var selectedItem = availableItems[randomIndex];
-
-                // 将展示的结果添加到 shownResults 中
-                shownResults.push(selectedItem);
-
-                // 更新展示元素的文本内容和字体颜色
-                display.textContent = selectedItem;
-                display.style.color = getRandomColor();
-            }
-
-            // 获取远程文件内容并缓存到本地
-            async function fetchRemoteFile(url, type) {
-                // 否则从远程获取文件内容，并缓存到本地
-                const response = await fetch(url);
-
-                if(!response.ok) {
-                    alert('获取文件时出错:', error);
-                }
-
-                const data = await response.text();
-
-                if(type) {
-                    localStorage.setItem(type, data);
-                }
-
-                return data;
-            }
-
-            // 文案的展示随机颜色
-            function getRandomColor() {
-                var colors = ["#FF5733", "#FFC300", "#DAF7A6", "#C70039", "#900C3F", "#581845", "#FE6F5E", "#FF914D"];
-                var randomIndex = Math.floor(Math.random() * colors.length);
-                return colors[randomIndex];
-            }
-
+            // 添加事件绑定
+            document.getElementById("pickButton").addEventListener("click", function() {buttonClickEvent(shownResults);});
+            document.getElementById("prevButton").addEventListener("click", function () {prevPageEvent();});
+            document.getElementById("nextButton").addEventListener("click", function () {nextPageEvent();});
+            document.getElementById("options").addEventListener("change", function(event) {optionChangeEvent(event)});
         });
+    </script>
+    <script>
+        // 选项切换事件
+        function optionChangeEvent(event) {
+            //只在学习模式响应
+            var currentMode = document.querySelectorAll(".tab.active")[0].textContent;
+            if(currentMode !== "学习模式") {
+                return;
+            }
+
+            document.getElementById("pageNum").textContent = 1;
+
+            var select = document.getElementById("options");
+            var targetValue = select.value;
+            var cachedData = localStorage.getItem(targetValue);
+            if(!cachedData) {
+                console.log("fetch remote file content" + targetValue);
+
+                ( async() => {
+                    const fileContent = await fetchRemoteFile(targetValue, select.options[select.selectedIndex].text);
+                    showPageModeContent(fileContent, 1);
+
+                })();
+            } else {
+                showPageModeContent(cachedData, 1);
+            }
+
+        }
+
+        // 上一页、下一页切换事件
+        function prevPageEvent() {
+            var pageNum = document.getElementById("pageNum");
+            var currentPageNum = parseInt(pageNum.textContent);
+
+            var select = document.getElementById("options");
+            const selectedItem = select.options[select.selectedIndex].text;
+            var cachedData = localStorage.getItem(selectedItem);
+
+            pageNum.textContent =  currentPageNum <= 1 ? 1 : currentPageNum - 1;
+            showPageModeContent(cachedData, pageNum.textContent);
+        }
+
+        function nextPageEvent() {
+            var pageNum = document.getElementById("pageNum");
+            var select = document.getElementById("options");
+            const selectedItem = select.options[select.selectedIndex].text;
+            var cachedData = localStorage.getItem(selectedItem);
+
+            var maxPageNum = 0;
+            var currentPageNum = parseInt(pageNum.textContent);
+            if(!cachedData) {
+                alert("没有更多内容了");
+            } else {
+                var fileSize = cachedData.split("\n").length;
+                maxPageNum = fileSize % 5 == 0 ? fileSize / 5 : fileSize / 5 + 1;
+            }
+
+            if(currentPageNum >= maxPageNum) {
+                alert("没有更多内容了");
+            } else {
+                pageNum.textContent =  currentPageNum + 1;
+                showPageModeContent(cachedData, pageNum.textContent);
+            }
+        }
+
+        // tab切换事件
+        function tabSwitchEvent(index) {
+            tabSwitch(index);
+
+            var select = document.getElementById("options");
+            const selectedItem = select.options[select.selectedIndex].text;
+            var cachedData = localStorage.getItem(selectedItem);
+            if(!cachedData) {
+                console.log("fetch remote file content");
+
+                ( async() => {
+                    const fileContent = await fetchRemoteFile(select.value, selectedItem);
+                    showPageModeContent(fileContent, 1);
+
+                })();
+            } else {
+                showPageModeContent(cachedData, 1);
+            }
+        }
+        // 按钮点击事件，随机展示文案
+        function buttonClickEvent(shownResults) {
+            var select = document.getElementById("options");
+
+            const selectedItem = select.options[select.selectedIndex].text;
+            var cachedData = localStorage.getItem(selectedItem);
+            if(!cachedData) {
+                console.log("fetch remote file content");
+
+                ( async() => {
+                    const fileContent = await fetchRemoteFile(select.value, selectedItem);
+                    showRandomContent(fileContent, shownResults);
+
+                })();
+            } else {
+                showRandomContent(cachedData, shownResults);
+            }
+        }
+
+        // 获取选项列表
+        function initPageInfo() {
+            //清除localstorege
+            localStorage.clear();
+
+            var remoteUrl = "https://raw.githubusercontent.com/Pylol/word-storege/main/options";
+            ( async() => {
+                const optionListStr = await fetchRemoteFile(remoteUrl);
+                const optionList = JSON.parse(optionListStr);
+
+                var selectEle = document.getElementById("options");
+                var linkList = document.getElementById("linkList");
+
+                for ( const key in optionList) {
+                    const option = document.createElement("option");
+                    option.value = optionList[key];
+                    option.textContent = key;
+                    selectEle.appendChild(option);
+
+                    const link = document.createElement("a")
+                    link.href = optionList[key];
+                    link.textContent = key;
+                    link.target = "_blank";
+                    linkList.appendChild(link);
+                }
+            })();
+
+        }
+
+        function tabSwitch(index) {
+            var tabs = document.querySelectorAll('.tab');
+            var contents = document.querySelectorAll('.content-container');
+            // 隐藏所有内容
+            contents.forEach(function(content) {
+                content.classList.remove('active');
+            });
+            // 显示对应索引的内容
+            contents[index].classList.add('active');
+            // 移除所有选项卡的 active 类
+            tabs.forEach(function(tab) {
+                tab.classList.remove('active');
+            });
+            // 将点击的选项卡添加 active 类
+            tabs[index].classList.add('active');
+        }
+        function showPageModeContent(fileContent, page) {
+            var display = document.getElementById("displayAll");
+            while(display.firstChild) {
+                display.firstChild.remove();
+            }
+            var items = fileContent.split('\n');
+
+            var startIndex = page == null ? 0 : (page-1)*5;
+            var endIndex = startIndex + 5 >= items.length ? items.length : startIndex + 5;
+            for(var i=startIndex; i<endIndex; i++) {
+                var span = document.createElement("div");
+                span.textContent = items[i];
+                span.style.color = getRandomColor();
+
+                display.appendChild(span);
+            }
+        }
+
+        // 随机展示文案
+        function showRandomContent(fileContent, shownResults) {
+            var display = document.getElementById("display");
+            const items = fileContent.split('\n');
+
+            // 检查是否所有结果都已经展示过，如果是，则重置 shownResults
+            if (shownResults.length === items.length) {
+                shownResults = [];
+            }
+
+            // 从未展示过的结果中随机选择一个
+            var availableItems = items.filter(function(item) {
+                return !shownResults.includes(item);
+            });
+            var randomIndex = Math.floor(Math.random() * availableItems.length);
+            var selectedItem = availableItems[randomIndex];
+
+            // 将展示的结果添加到 shownResults 中
+            shownResults.push(selectedItem);
+
+            // 更新展示元素的文本内容和字体颜色
+            display.textContent = selectedItem;
+            display.style.color = getRandomColor();
+        }
+
+        // 获取远程文件内容并缓存到本地
+        async function fetchRemoteFile(url, type) {
+            // 否则从远程获取文件内容，并缓存到本地
+            const response = await fetch(url);
+
+            if(!response.ok) {
+                alert('获取文件时出错:', error);
+            }
+
+            const data = await response.text();
+
+            if(type) {
+                localStorage.setItem(type, data);
+            }
+
+            return data;
+        }
+
+        // 文案的展示随机颜色
+        function getRandomColor() {
+            var colors = ["#FF5733", "#FFC300", "#ff5733", "#C70039", "#900C3F", "#581845", "#FE6F5E", "#FF914D"];
+            var randomIndex = Math.floor(Math.random() * colors.length);
+            return colors[randomIndex];
+        }
     </script>
 </body>
 </html>
