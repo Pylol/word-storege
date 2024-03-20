@@ -170,12 +170,28 @@
             padding: 5px 10px;
             background-color: #f0f0f0;
             border-radius: 5px;
-            font-size: 32px;
+            font-size: 20px;
             color: #333;
         }
 
         #pageNum {
             margin: 0px 5px;
+        }
+
+        .input-text {
+            padding: 10px; /* 增加内边距 */
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 14px;
+            outline: none;
+            transition: border-color 0.3s;
+            resize: vertical; /* 允许垂直方向的拖拽调整大小 */
+            min-height: 80px; /* 设置最小高度 */
+            min-width: 300px;
+        }
+
+        .input-text:focus {
+            border-color: #007bff;
         }
     </style>
 </head>
@@ -186,6 +202,7 @@
         <div class="tab-container">
             <div class="tab active" onclick="tabSwitchEvent(0)">问答模式</div>
             <div class="tab" onclick="tabSwitchEvent(1)">学习模式</div>
+            <div class="tab" onclick="tabSwitchEvent(2)">自定义</div>
         </div>
         <div class="item links-container" id="linkList"></div>
         <div class="item">
@@ -206,6 +223,11 @@
             </div>
 
             <div id="displayAll" class="span-list"></div>
+        </div>
+        <div class="content-container">
+            <div class="item">
+                <textarea id="manualContent" class="input-text" placeholder="请输入内容"></textarea>
+            </div>
         </div>
     <div>
 
@@ -234,22 +256,27 @@
             }
 
             document.getElementById("pageNum").textContent = 1;
-
             var select = document.getElementById("options");
-            var targetValue = select.value;
-            var cachedData = localStorage.getItem(targetValue);
-            if(!cachedData) {
-                console.log("fetch remote file content" + targetValue);
+            const selectedItem = select.options[select.selectedIndex].text;
 
-                ( async() => {
-                    const fileContent = await fetchRemoteFile(targetValue, select.options[select.selectedIndex].text);
-                    showPageModeContent(fileContent, 1);
+            if(selectedItem !== "自定义") {
+                var targetValue = select.value;
+                var cachedData = localStorage.getItem(targetValue);
+                if(!cachedData) {
+                    console.log("fetch remote file content" + targetValue);
 
-                })();
+                    ( async() => {
+                        const fileContent = await fetchRemoteFile(targetValue, selectedItem);
+                        showPageModeContent(fileContent, 1);
+
+                    })();
+                } else {
+                    showPageModeContent(cachedData, 1);
+                }
             } else {
-                showPageModeContent(cachedData, 1);
+                var manualContent = document.getElementById("manualContent").value;
+                showPageModeContent(manualContent, 1);
             }
-
         }
 
         // 上一页、下一页切换事件
@@ -294,35 +321,47 @@
 
             var select = document.getElementById("options");
             const selectedItem = select.options[select.selectedIndex].text;
-            var cachedData = localStorage.getItem(selectedItem);
-            if(!cachedData) {
-                console.log("fetch remote file content");
 
-                ( async() => {
-                    const fileContent = await fetchRemoteFile(select.value, selectedItem);
-                    showPageModeContent(fileContent, 1);
+            if(selectedItem !== "自定义") {
+                var cachedData = localStorage.getItem(selectedItem);
+                if(!cachedData) {
+                    console.log("fetch remote file content");
 
-                })();
+                    ( async() => {
+                        const fileContent = await fetchRemoteFile(select.value, selectedItem);
+                        showPageModeContent(fileContent, 1);
+
+                    })();
+                } else {
+                    showPageModeContent(cachedData, 1);
+                }
             } else {
-                showPageModeContent(cachedData, 1);
+                var manualContent = document.getElementById("manualContent").value;
+                showPageModeContent(manualContent, 1);
             }
+
         }
         // 按钮点击事件，随机展示文案
         function buttonClickEvent(shownResults) {
             var select = document.getElementById("options");
 
             const selectedItem = select.options[select.selectedIndex].text;
-            var cachedData = localStorage.getItem(selectedItem);
-            if(!cachedData) {
-                console.log("fetch remote file content");
+            if(selectedItem !== "自定义") {
+                var cachedData = localStorage.getItem(selectedItem);
+                if(!cachedData) {
+                    console.log("fetch remote file content");
 
-                ( async() => {
-                    const fileContent = await fetchRemoteFile(select.value, selectedItem);
-                    showRandomContent(fileContent, shownResults);
+                    ( async() => {
+                        const fileContent = await fetchRemoteFile(select.value, selectedItem);
+                        showRandomContent(fileContent, shownResults);
 
-                })();
+                    })();
+                } else {
+                    showRandomContent(cachedData, shownResults);
+                }
             } else {
-                showRandomContent(cachedData, shownResults);
+                var manualContent = document.getElementById("manualContent").value;
+                showRandomContent(manualContent, shownResults);
             }
         }
 
@@ -351,6 +390,12 @@
                     link.target = "_blank";
                     linkList.appendChild(link);
                 }
+
+                // 添加自定义选项
+                const option = document.createElement("option");
+                option.value = "/";
+                option.textContent = "自定义";
+                selectEle.appendChild(option);
             })();
 
         }
@@ -358,18 +403,19 @@
         function tabSwitch(index) {
             var tabs = document.querySelectorAll('.tab');
             var contents = document.querySelectorAll('.content-container');
-            // 隐藏所有内容
-            contents.forEach(function(content) {
-                content.classList.remove('active');
-            });
-            // 显示对应索引的内容
-            contents[index].classList.add('active');
             // 移除所有选项卡的 active 类
             tabs.forEach(function(tab) {
                 tab.classList.remove('active');
             });
             // 将点击的选项卡添加 active 类
             tabs[index].classList.add('active');
+
+            // 隐藏所有内容
+            contents.forEach(function(content) {
+                content.classList.remove('active');
+            });
+            // 显示对应索引的内容
+            contents[index].classList.add('active');
         }
         function showPageModeContent(fileContent, page) {
             var display = document.getElementById("displayAll");
