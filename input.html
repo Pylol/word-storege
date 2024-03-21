@@ -3,30 +3,35 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>可换行输入框样式</title>
-    <style>
-        /* 将上面的 CSS 样式代码粘贴在这里 */
-        /* 样式美化 */
-        .input-text {
-            padding: 10px; /* 增加内边距 */
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            font-size: 14px;
-            outline: none;
-            transition: border-color 0.3s;
-            resize: vertical; /* 允许垂直方向的拖拽调整大小 */
-            min-height: 80px; /* 设置最小高度 */
-        }
-
-        .input-text:focus {
-            border-color: #007bff;
-        }
-
-    </style>
+    <title>监听元素内容变化</title>
 </head>
 <body>
 
-<textarea class="input-text" placeholder="请输入内容"></textarea>
+<div id="targetElement">这是初始内容</div>
+
+<script>
+    // 选择要监听变化的元素
+    var targetElement = document.getElementById("targetElement");
+
+    // 创建一个 Mutation Observer 实例
+    var observer = new MutationObserver(function(mutationsList, observer) {
+        // 在回调函数中处理变化
+        mutationsList.forEach(function(mutation) {
+            alert("元素内容发生变化:" + mutation.target.textContent);
+        });
+    });
+
+    // 配置 Mutation Observer 以监听子节点的变化
+    var config = { childList: true, subtree: true };
+
+    // 启动监听器并将配置应用于目标元素
+    observer.observe(targetElement, config);
+
+    // 修改目标元素的内容，触发变化
+    setTimeout(function() {
+        targetElement.textContent = "内容已更改";
+    }, 2000);
+</script>
 
 </body>
 </html>

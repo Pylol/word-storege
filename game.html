@@ -43,8 +43,33 @@
             transition: background-color 0.3s ease;
         }
 
-        .button:hover {
-            background-color: #0057A6;
+        .flagButton {
+            background-color: #CCCCCC;
+            color: white;
+            border: none;
+            border-radius: 20px;
+            padding: 10px 30px;
+            font-size: 20px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            margin: 10px 10px;
+            display: none;
+        }
+
+        .chooseFault {
+            background-color: tomato;
+            front-color: white;
+        }
+
+        .chooseCorrect {
+            background-color: green;
+            front-color: white;
+        }
+
+        #answeredListClearButton {
+            padding: 3px 10px;
+            margin: 10px 10px -5px 10px;
+            font-size: 14px;
         }
 
         .pagebtn {
@@ -193,6 +218,25 @@
         .input-text:focus {
             border-color: #007bff;
         }
+
+        #answeredList{
+            display: block;
+        }
+        .answeredWord {
+            margin-left: 15px;
+            margin-right: 5px;
+            font-size: 14px;
+            display: block;
+            float: left;
+            clear: none; /* 清除浮动 */
+        }
+        .correctWord {
+            color: green;
+        }
+        .faultWord {
+            color: tomato;
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
@@ -214,6 +258,12 @@
             </div>
 
             <div id="display" class="item"></div>
+            <div class="item">
+                <button id="faultButton" class="flagButton chooseFault" onclick="appendAnsweredWord(0)">×</button>
+                <button id="correctButton" class="flagButton chooseCorrect"  onclick="appendAnsweredWord(1)">✓</button>
+                <button id="answeredListClearButton" class="flagButton">清空</button>
+            </div>
+            <div class="item" id="answeredList"></div>
         </div>
         <div class="content-container">
             <div class="item">
@@ -244,9 +294,39 @@
             document.getElementById("prevButton").addEventListener("click", function () {prevPageEvent();});
             document.getElementById("nextButton").addEventListener("click", function () {nextPageEvent();});
             document.getElementById("options").addEventListener("change", function(event) {optionChangeEvent(event)});
+            document.getElementById("answeredListClearButton").addEventListener("click", function () {clearAnsweredWordList();});
         });
     </script>
     <script>
+        function clearAnsweredWordList() {
+            document.getElementById("answeredList").innerHTML = "";
+        }
+        function appendAnsweredWord(result) {
+            var displayWord = document.getElementById("display").textContent;
+
+            if(displayWord === null || displayWord === "") {
+                return;
+            }
+
+            var spanEle = document.createElement("span");
+            spanEle.classList.add("answeredWord");
+            if(result === 0) {
+                spanEle.classList.add("faultWord");
+                spanEle.textContent = displayWord + " ×";
+            } else {
+                spanEle.classList.add("correctWord");
+                spanEle.textContent = displayWord + " ✓";
+            }
+
+            var answeredList = document.getElementById("answeredList");
+            var lastWordEle = answeredList.lastElementChild;
+
+            if(lastWordEle !== null && lastWordEle.textContent.includes(displayWord)) {
+                lastWordEle.remove();
+            }
+
+            answeredList.appendChild(spanEle);
+        }
         // 选项切换事件
         function optionChangeEvent(event) {
             //只在学习模式响应
@@ -363,6 +443,11 @@
                 var manualContent = document.getElementById("manualContent").value;
                 showRandomContent(manualContent, shownResults);
             }
+
+            //展示错误、正确按钮
+            document.getElementById("correctButton").style.display = "block";
+            document.getElementById("faultButton").style.display = "block";
+            document.getElementById("answeredListClearButton").style.display = "block";
         }
 
         // 获取选项列表
