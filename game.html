@@ -240,6 +240,64 @@
             color: tomato;
             font-weight: bold;
         }
+
+
+        /* 弹窗外部样式 */
+        .popup {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 9999;
+        }
+
+        /* 弹窗内容样式 */
+        .popup-content {
+            display: flex; /* 使用 Flexbox 布局 */
+            flex-direction: row; /* 水平排列 */
+            align-items: center; /* 垂直居中 */
+            justify-content: space-between; /* 左右对齐 */
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            width: 300px;
+            padding: 20px;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        /* 输入框样式 */
+        #baiduTok {
+            width: calc(100% - 100px); /* 输入框占据剩余空间 */
+            padding: 8px;
+            margin-right: 5px; /* 输入框右边距 */
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+
+        /* 按钮样式 */
+        #popup button {
+            width: 80px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        /* 按钮悬停样式 */
+        button:hover {
+            background-color: #0056b3;
+        }
     </style>
 </head>
 <body>
@@ -276,6 +334,13 @@
             </div>
 
             <div id="displayAll" class="span-list"></div>
+
+            <div id="popup" class="popup">
+                <div class="popup-content">
+                    <input type="text" id="baiduTok" placeholder="输入框">
+                    <button onclick="hidePopup()">完成</button>
+                </div>
+            </div>
         </div>
         <div class="content-container">
             <div class="item">
@@ -289,7 +354,6 @@
             //初始化页面选项
             initPageInfo();
 
-
             // 用于存储已经展示过的结果
             const shownResults = [];
 
@@ -299,7 +363,6 @@
             document.getElementById("nextButton").addEventListener("click", function () {nextPageEvent();});
             document.getElementById("options").addEventListener("change", function(event) {optionChangeEvent(event)});
             document.getElementById("answeredListClearButton").addEventListener("click", function () {clearAnsweredWordList();});
-
         });
     </script>
     <script>
@@ -464,10 +527,17 @@
                 return;
             }
 
+            var popup = document.getElementById("popup");
+            var baiduTok = document.getElementById("baiduTok").value;
+            if(baiduTok === null || baiduTok === "") {
+                popup.style.display = "block";
+                return;
+            }
+
             var speechContent = event.target.parentNode.textContent.split("(")[0];
             btts({
                 tex: speechContent,
-                tok: '25.a71049c7c6f36e2a97d6a21d3a0e7b0f.315360000.2026438228.282335-57535141',
+                tok: baiduTok,
                 spd: 2,
                 pit: 3,
                 vol: 6,
@@ -497,6 +567,10 @@
 
                 }
             });
+        }
+
+        function hidePopup() {
+            document.getElementById("popup").style.display = "none";
         }
 
         // 获取选项列表

@@ -3,145 +3,108 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>监听元素内容变化</title>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <title>弹窗示例</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        /* 弹窗内容样式 */
+        .popup-content {
+            display: flex; /* 使用 Flexbox 布局 */
+            flex-direction: row; /* 水平排列 */
+            align-items: center; /* 垂直居中 */
+            justify-content: space-between; /* 左右对齐 */
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            width: 300px;
+            padding: 20px;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        /* 输入框样式 */
+        input[type="text"] {
+            width: calc(100% - 100px); /* 输入框占据剩余空间 */
+            padding: 8px;
+            margin-right: 5px; /* 输入框右边距 */
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+
+        /* 按钮样式 */
+        button {
+            width: 80px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+
+        /* 弹窗外部样式 */
+        .popup {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 9999;
+        }
+
+        /* 按钮悬停样式 */
+        button:hover {
+            background-color: #0056b3;
+        }
+
+    </style>
 </head>
 <body>
 
-<div id="targetElement">这是初始内容</div>
+<button onclick="openPopup()">打开弹窗</button>
+
+<div id="popup" class="popup">
+    <div class="popup-content">
+        <input type="text" id="textInput" placeholder="输入框">
+        <button onclick="hidePopup()">隐藏弹窗</button>
+    </div>
+</div>
 
 <script>
-    const xhr = new XMLHttpRequest();
-    xhr.open("POST", "https://openapi.baidu.com");
-    xhr.setRequestHeader("X-PINGOTHER", "pingpong");
-    xhr.setRequestHeader("Content-Type", "application/xml");
-    xhr.onreadystatechange = handler;
-    xhr.send("<person><name>Arun</name></person>");
+    // 获取弹窗和输入框元素
+    var popup = document.getElementById('popup');
+    var textInput = document.getElementById('textInput');
 
-    function handler() {
-        alert("ss");
+    // 打开弹窗函数
+    function openPopup() {
+        popup.style.display = 'block'; // 显示弹窗
+        textInput.focus(); // 让输入框获取焦点
     }
 
-    // $.get("https://openapi.baidu.com/oauth/2.0/token?grant_type=client_credentials&client_id=JsWfiW4Can4fdZt8P7xmyBkQ&client_secret=uIetDGkqb4cN5zc0zMwFwwydJDgS1KG1")
-    // .done(function(script, data) {
-    //     console.log(data);
-    // })
-    // .fail(function (xhr,settings,error){
-    //     console.error("error", error);
-    // });
-    // $.ajax({
-    //     url: 'https://openspeech.bytedance.com/api/v1/tts',
-    //     type: 'POST',
-    //     data: { param1: 'value1', param2: 'value2' },
-    //     headers: {
-    //         'Content-Type': 'application/json', // 设置 Content-Type 头为 JSON
-    //         'Authorization': 'Bearer;token123' // 设置 Authorization 头
-    //     },
-    //     success: function(data) {
-    //         console.log('请求成功:', data);
-    //     },
-    //     error: function(xhr, status, error) {
-    //         console.error('请求失败:', error);
-    //     }
-    // });
-    //
-    // $.ajax({
-    //     url: "https://aip.baidubce.com/oauth/2.0/token?grant_type=client_credentials&client_id=JsWfiW4Can4fdZt8P7xmyBkQ&client_secret=uIetDGkqb4cN5zc0zMwFwwydJDgS1KG1",
-    //     type: "GET",
-    //     dataType: "JSONP",
-    //     success: function (result) {
-    //         console.log(result);
-    //     },
-    //     error: function (error) {
-    //        console.log(error);
-    //     }
-    // });
-    // fetch('https://aip.baidubce.com/oauth/2.0/token?grant_type=client_credentials&client_id=JsWfiW4Can4fdZt8P7xmyBkQ&client_secret=uIetDGkqb4cN5zc0zMwFwwydJDgS1KG1', {
-    //         // mode: 'no-cors',
-    //         method: 'GET',
-    //         headers: {
-    //             'Content-Type': 'application/json',
-    //             'Accept': 'application/json',
-    //             "Access-Control-Allow-Origin": "*",
-    //             "Access-Control-Allow-Headers": "Origin, X-Requested-With, Content-Type, Accept"
-    //         }
-    //     })
-    //     .then(response => {
-    //         if (!response.ok) {
-    //             throw new Error('HTTP response error: ' + response.status);
-    //         }
-    //         return response.json();
-    //     })
-    //     .then(data => {
-    //         console.log('请求成功:', data);
-    //     })
-    //     .catch(error => {
-    //         console.error('请求失败:', error);
-    //     });
-    //
-    // async function getAccessToken () {
-    //     const response = await fetch('https://aip.baidubce.com/oauth/2.0/token?grant_type=client_credentials&client_id=JsWfiW4Can4fdZt8P7xmyBkQ&client_secret=uIetDGkqb4cN5zc0zMwFwwydJDgS1KG1',
-    //         {
-    //             mode: 'no-cors',
-    //             method: 'POST',
-    //             headers: {
-    //                 'Content-Type': 'application/json',
-    //                 'Accept': 'application/json'
-    //             }
-    //         }
-    //     );
-    //
-    //     if(!response.ok) {
-    //         alert('Network response was not ok: ' + response.statusText);
-    //     }
-    //
-    //     const data = await response.text();
-    //
-    //     console.log(data);
-    //     return data;
-    // }
-    // ( async() => {
-    //     // 构建请求的参数
-    //     var requestData = {
-    //         cuid: 'bNfbCBQoivoJP3RvDe20MNjphL6yGN0y',
-    //         ctp: '1',
-    //         lan: 'zh',
-    //         spd: '5',
-    //         pit: '5',
-    //         vol: '5',
-    //         per: '1',
-    //         aue: '3'
-    //     };
-    //
-    //     requestData['txt'] = encodeURIComponent(encodeURIComponent("车"));
-    //     requestData['tok'] = await getAccessToken();
-    //
-    //     // 发起 POST 请求
-    //     fetch('https://tsn.baidu.com/text2audio', {
-    //         mode: 'no-cors',
-    //         method: 'POST',
-    //         headers: {
-    //             'Content-Type': 'application/x-www-form-urlencoded',
-    //             'Accept': '*/*'
-    //         },
-    //         body: JSON.stringify(requestData)
-    //     })
-    //         .then(response => {
-    //             if (!response.ok) {
-    //                 throw new Error('Network response was not ok');
-    //             }
-    //             console.log(response.json());
-    //         })
-    //         .then(data => {
-    //             console.log('POST 请求成功:', data);
-    //         })
-    //         .catch(error => {
-    //             console.error('POST 请求失败:', error);
-    //         });
-    // })();
+    // 隐藏弹窗函数
+    function hidePopup() {
+        popup.style.display = 'none'; // 隐藏弹窗
+    }
 
+    // 点击弹窗外部隐藏弹窗
+    window.onclick = function(event) {
+        if (event.target == popup) {
+            popup.style.display = 'none'; // 隐藏弹窗
+        }
+    }
+
+    // 关闭按钮点击事件
+    function closePopup() {
+        popup.style.display = 'none'; // 隐藏弹窗
+    }
 
 </script>
-
 </body>
 </html>
